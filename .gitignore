@@ -1,2 +1,4 @@
 DavidCore/DAVID/bin/*
 DavidCore/DAVID/obj/*
+.vscode/*
+.vscode/settings.json
