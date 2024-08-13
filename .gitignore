@@ -2,3 +2,6 @@ DavidCore/DAVID/bin/*
 DavidCore/DAVID/obj/*
 .vscode/*
 .vscode/settings.json
+TEST/TestProject1/bin/*
+TEST/TestProject1/obj/*
+DavidCore/DAVID/Trace/*
