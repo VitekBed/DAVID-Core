@@ -1,4 +1,6 @@
 
+using DAVID.Diagnostics;
+
 namespace DAVID
 {
     internal class Program
@@ -6,6 +8,8 @@ namespace DAVID
         private static void Main(string[] args)
         {
             DavidServerInicialization();
+
+            ITraceScope trace = Diagnostics.ITraceProvider.Provider.WriteScope(Diagnostics.TraceLevel.Info, nameof(Program), nameof(Main), null);
 
             WebApplicationOptions options = new()
             {
@@ -17,8 +21,10 @@ namespace DAVID
             var app = builder.Build();
 
             app.MapGet("/", () => "Hello World!");
-
+            
+            trace.Dispose();    //ruční zápis koncové trace značky
             app.Run();
+
         }
 
         private static void DavidServerInicialization()
