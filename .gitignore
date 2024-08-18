@@ -5,3 +5,9 @@ DavidCore/DAVID/obj/*
 TEST/TestProject1/bin/*
 TEST/TestProject1/obj/*
 DavidCore/DAVID/Trace/*
+CompleteProject/*
+DavidCore/DAVIDSocketServer/bin/*
+DavidCore/DAVIDSocketServer/obj/*
+.DS_Store
+DavidCore/.DS_Store
+DavidCore/DAVID/.DS_Store

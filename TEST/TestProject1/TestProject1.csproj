@@ -24,4 +24,9 @@
     <ProjectReference Include="..\..\DavidCore\DAVID\DAVID.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <OutputPath>..\..\CompleteProject</OutputPath>
+  </PropertyGroup>
+
 </Project>
