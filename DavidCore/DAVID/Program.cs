@@ -25,12 +25,15 @@ namespace DAVID
             trace.Dispose();    //ruční zápis koncové trace značky
             app.Run();
 
+            
         }
 
         private static void DavidServerInicialization()
         {
             DAVID.Diagnostics.ITraceProvider.CreateProvider(typeof(Diagnostics.CsvTraceProvider));
             Diagnostics.ITraceProvider.Provider.Write(Diagnostics.TraceLevel.Info, "PROGRAM", "INICIALIZE", null);
+            var server = Current.ServerInstance; //inicializace ServerInstance
+
         }
     }
 }
