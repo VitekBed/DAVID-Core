@@ -7,13 +7,17 @@ using DAVID.Synchronization;
 namespace DAVID
 {
     /// <summary>
-    /// Instance serveru. Zajišťuje registraci a vytváření všech obslužných 
+    /// Instance serveru. Zajišťuje registraci a vytváření všech obslužných objektů pro běh serveru
     /// </summary>
     [Singleton]
     public class ServerInstance : IDisposable
     {
+        #region static
         private static ServerInstance? _serverInstance;
         private static readonly SlimLock slimLock = new SlimLock("ServerInstanceFactory");
+        /// <summary>
+        /// Přístup k singleton objektu typu <see cref="ServerInstance"/> 
+        /// </summary>
         [FactoryMethod(typeof(ServerInstance))]
         public static ServerInstance CurrentInstance
         {
@@ -28,14 +32,24 @@ namespace DAVID
                 }
             }
         }
-        public IWebSocketServer WebSocketServer;
+        #endregion static
+        public IWebSocketServer WebSocketServer {get; init;}
         private ServerInstance()
         {
             _RegisterAssemblyResolvers();
             WebSocketServer = _GetSingletonInstanceFromModule<IWebSocketServer>(Current.Constants.WebSocketServerAssembly);
 
         }
-        private static T _GetSingletonInstanceFromModule<T>(string assemblyName) 
+        /// <summary>
+        /// Metoda pro získání instance singletonu požadovaného typu <typeparamref name="T"/> z požadované assembly. 
+        /// Očekává, že požadovaný typ bude v načítané assembly označen jako <see cref="SingletonAttribute"/> 
+        /// a bude obsahovat metodu označenou <see cref="FactoryMethodAttribute"/> pro zadaný typ <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T">Požadovaný typ</typeparam>
+        /// <param name="assemblyName">Jméno assembly ve kterém je potřeba typ a metodu nalézt.</param>
+        /// <returns></returns>
+        /// <exception cref="ApplicationException"></exception>
+        private static T _GetSingletonInstanceFromModule<T>(string assemblyName)
         {
             using (Diagnostics.ITraceProvider.Provider.WriteScope(Diagnostics.TraceLevel.Info, nameof(ServerInstance), nameof(_GetSingletonInstanceFromModule), typeof(T).Name, assemblyName))
             {
@@ -58,7 +72,11 @@ namespace DAVID
             }
         }
         #region AssemblyResolver
+        /// <summary>
+        /// Hendler pro assembly resolver. Umožňuje případnou odregistraci handleru za běhu aplikace
+        /// </summary>
         private ResolveEventHandler? _DllLoadHandler;
+        /// <summary> Zaregistrování assembly resolverů. </summary>
         private void _RegisterAssemblyResolvers()
         {
             using (var trace = Diagnostics.ITraceProvider.Provider.WriteScope(Diagnostics.TraceLevel.Info, nameof(ServerInstance), nameof(_RegisterAssemblyResolvers), null))
@@ -68,12 +86,17 @@ namespace DAVID
                 trace.AddEndInfo(nameof(_DllLoad));
             }
         }
-
+        /// <summary>
+        /// Metoda pro assembly resolver. Načítá assembly z příslušné knihovny v umístění podle konfigurace (<seealso cref="Current.Constants.DllLocation"/>)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
         private Assembly? _DllLoad(object? sender, ResolveEventArgs args)
         {
             if (args.Name.StartsWith("System."))
             {
-                return null; // potřebuji nechat CLR ať si problém vyřeší sám, jinak spadne u System.IO.Path ...
+                return null; // potřebuji nechat CLR ať si problém vyřeší sám, jinak spadne u System.IO.Path o pár řádků níž ...
             }
 
             // Extrahujeme název požadovaného sestavení
@@ -89,7 +112,7 @@ namespace DAVID
             // Pokud sestavení nebylo nalezeno, vrátíme null a pokračuje se podle pravidel CLR
             return null;
         }
-
+        /// <summary> Odregistrování assembly resolverů. </summary>
         private void _UnregisterAssemblyResolvers()
         {
             AppDomain.CurrentDomain.AssemblyResolve -= _DllLoadHandler;
