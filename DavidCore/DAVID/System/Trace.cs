@@ -28,7 +28,7 @@ namespace DAVID.Diagnostics
         /// <summary>
         /// Vrací <see cref="ITraceProvider"/> nastavený při startu aplikace.
         /// </summary>
-        static ITraceProvider Provider => _traceProvider is null ? throw new ApplicationException("Trace provider is not inicialized yet!") : _traceProvider;
+        static ITraceProvider Provider => _traceProvider is null ? throw new Exception("Trace provider is not inicialized yet!") : _traceProvider;
         /// <summary>
         /// Vytvoří provider pro zápis trace na základě dodaného typu. Pokud provider již existuje, neudělá nic. 
         /// Zavolá konstruktor typu v parametru <paramref name="type"/> a pro běh instance se naplní neměnná hodnota <see cref="ITraceProvider.Provider"/>
@@ -105,7 +105,7 @@ namespace DAVID.Diagnostics
         /// <param name="action"></param>
         internal void SetEndAction(Action action)
         {
-            if (this._endAction is not null) throw new ApplicationException("EndAction was already set.");
+            if (this._endAction is not null) throw new Exception("EndAction was already set.");
             this._endAction = action;
         }
 
