@@ -1,6 +1,4 @@
 using System.Diagnostics;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace DAVID.Diagnostics
 {
@@ -15,24 +13,19 @@ namespace DAVID.Diagnostics
         /// <param name="methode">Metoda, ze kzeré pochází zápis do trace</param>
         /// <param name="keyword">Klíčové slovo pro vyhledávání</param>
         /// <param name="userInfo">Další informace, které vývojář chce zapsat do trace</param>
-        [StackTraceHidden]
-        void Write(TraceLevel level, string type, string methode, string? keyword, params string[] userInfo);
+        void Write(TraceLevel level, string type, string methode, string? keyword = null, params string[] userInfo);
         /// <summary>
         /// Zapáše úvodní blok pro párový zápis do trace. Při zavolání <see cref="ITraceScope.Dispose()"/> zapíše
         /// koncovou značku. Obsah koncové značky lze ovlivnit zavoláním <see cref="ITraceScope.AddEndInfo(string[])"/>
         /// </summary>
-        /// <param name="level"></param>
-        /// <param name="type"></param>
-        /// <param name="methode"></param>
-        /// <param name="keyword"></param>
-        /// <param name="userInfo"></param>
+        /// <param name="level">Zpravidla <see cref="TraceLevel.Info"/> </param>
+        /// <inheritdoc cref="Write"/>
         /// <returns></returns>
-        [StackTraceHidden]
-        ITraceScope WriteScope(TraceLevel level, string type, string methode, string? keyword, params string[] userInfo);
+        ITraceScope WriteScope(TraceLevel level, string type, string methode, string? keyword = null, params string[] userInfo);
         /// <summary>
         /// Vrací <see cref="ITraceProvider"/> nastavený při startu aplikace.
         /// </summary>
-        static ITraceProvider Provider => _traceProvider is null ? throw new ApplicationException("Trace provider is not inicialized yet!") : _traceProvider;
+        static ITraceProvider Provider => _traceProvider is null ? throw new Exception("Trace provider is not inicialized yet!") : _traceProvider;
         /// <summary>
         /// Vytvoří provider pro zápis trace na základě dodaného typu. Pokud provider již existuje, neudělá nic. 
         /// Zavolá konstruktor typu v parametru <paramref name="type"/> a pro běh instance se naplní neměnná hodnota <see cref="ITraceProvider.Provider"/>
@@ -48,12 +41,38 @@ namespace DAVID.Diagnostics
             }
             catch (Exception e)
             {
-                throw new ApplicationException($"Trace provider '{type}' cannot be inicialized!", e);
+                throw new Exception($"Trace provider '{type}' cannot be inicialized!", e);
             }
             if (instance is ITraceProvider provider) _traceProvider = provider;
-            else throw new ApplicationException($"Trace provider '{type}' is not ITraceProvider!");
+            else throw new Exception($"Trace provider '{type}' is not ITraceProvider!");
         }
         private static ITraceProvider? _traceProvider;
+        #region public static
+        /// <inheritdoc cref="Write(TraceLevel, string, string, string?, string[])"/>>
+        public static void WriteInfo(TraceLevel level, string type, string methode, string? keyword = null, params string[] userInfo)
+                    => Provider.Write(level, type, methode, keyword, userInfo);
+        /// <summary> Zapíše jeden řádek s <see cref="TraceLevel.Info"/> </summary>
+        /// <inheritdoc cref="Write(TraceLevel, string, string, string?, string[])"/>
+        public static void WriteInfo(string type, string methode, string? keyword = null, params string[] userInfo)
+                    => Provider.Write(TraceLevel.Info, type, methode, keyword, userInfo);
+        /// <summary> Zapíše jeden řádek s <see cref="TraceLevel.Warning"/> </summary>
+        /// <inheritdoc cref="Write(TraceLevel, string, string, string?, string[])"/>
+        public static void WriteWarning(string type, string methode, string? keyword = null, params string[] userInfo)
+                    => Provider.Write(TraceLevel.Warning, type, methode, keyword, userInfo);
+        /// <summary> Zapíše jeden řádek s <see cref="TraceLevel.Error"/> </summary>
+        /// <inheritdoc cref="Write(TraceLevel, string, string, string?, string[])"/>
+        public static void WriteError(string type, string methode, string? keyword = null, params string[] userInfo)
+                    => Provider.Write(TraceLevel.Error, type, methode, keyword, userInfo);
+        /// <summary> Zapíše jeden řádek s <see cref="TraceLevel.Exception"/> </summary>
+        /// <inheritdoc cref="Write(TraceLevel, string, string, string?, string[])"/>
+        public static void WriteException(string type, string methode, string? keyword = null, Exception? exception = null)
+                    => Provider.Write(TraceLevel.Exception, type, methode, keyword, exception?.ToString().ReplaceLineEndings(";") ?? "No detail");
+        /// <summary> Vytvoří <see cref="TraceScope"/> s <see cref="TraceLevel.Info"/> </summary>
+        /// <inheritdoc cref="WriteScope(TraceLevel, string, string, string?, string[])"/>
+        public static ITraceScope WriteScopeInfo(TraceLevel level, string type, string methode, string? keyword = null, params string[] userInfo)
+                    => Provider.WriteScope(level, type, methode, keyword, userInfo);
+        #endregion
+
     }
     /// <summary> Scope pro zápis trace, umožňuje zadat a načíst UserInfo, které bude zapsáno na konci scope. </summary>
     public interface ITraceScope : IDisposable
@@ -109,7 +128,7 @@ namespace DAVID.Diagnostics
         /// <param name="action"></param>
         internal void SetEndAction(Action action)
         {
-            if (this._endAction is not null) throw new ApplicationException("EndAction was already set.");
+            if (this._endAction is not null) throw new Exception("EndAction was already set.");
             this._endAction = action;
         }
 
@@ -216,7 +235,7 @@ namespace DAVID.Diagnostics
                 TraceState.State => "S",
                 _ => "?",
             };
-            string row = String.Join(";", DateTime.Now, level, stateString, type, methode, keyword, userInfo, Environment.NewLine);
+            string row = String.Join(";", DateTime.Now, level, stateString, type, methode, keyword, String.Join(";", userInfo), Environment.NewLine);
             var encoded = System.Text.Encoding.UTF8.GetBytes(row);
             fileStream?.Write(encoded);
             fileStream?.Flush();
@@ -256,7 +275,7 @@ namespace DAVID.Diagnostics
         {
             if (_disposing) return; //zajištění aby se Invoke zavolal jen jednou
             _disposing = true;
-            _endAction?.Invoke();            
+            _endAction?.Invoke();
         }
     }
 }

@@ -1,4 +1,5 @@
 
+using System.Runtime.CompilerServices;
 using DAVID.Diagnostics;
 
 namespace DAVID
@@ -9,7 +10,7 @@ namespace DAVID
         {
             DavidServerInicialization();
 
-            ITraceScope trace = Diagnostics.ITraceProvider.Provider.WriteScope(Diagnostics.TraceLevel.Info, nameof(Program), nameof(Main), null);
+            ITraceScope trace = Diagnostics.ITraceProvider.Provider.WriteScope(Diagnostics.TraceLevel.Info, nameof(Program), nameof(Main));
 
             WebApplicationOptions options = new()
             {
@@ -21,11 +22,13 @@ namespace DAVID
             var app = builder.Build();
 
             app.MapGet("/", () => "Hello World!");
-            
+
+            app.MapGet("/Exception", ThrowException);
+
             trace.Dispose();    //ruční zápis koncové trace značky
             app.Run();
 
-            
+
         }
 
         private static void DavidServerInicialization()
@@ -35,5 +38,25 @@ namespace DAVID
             var server = Current.ServerInstance; //inicializace ServerInstance
 
         }
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ThrowException()
+        {
+            using (ITraceScope trace = Diagnostics.ITraceProvider.WriteScopeInfo(Diagnostics.TraceLevel.Info, nameof(Program), nameof(ThrowException)))
+            {
+                try
+                {
+                    Throw();
+                }
+                catch (Exception e)
+                {
+                    ITraceProvider.WriteException(nameof(Program), nameof(ThrowException), null, e);
+                    throw;
+                }
+            }
+        }
+        [MethodImpl(MethodImplOptions.NoInlining)]
+
+        private static void Throw() => throw new Exception("TESTexception");
+
     }
 }

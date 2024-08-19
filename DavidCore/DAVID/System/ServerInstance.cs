@@ -48,7 +48,7 @@ namespace DAVID
         /// <typeparam name="T">Požadovaný typ</typeparam>
         /// <param name="assemblyName">Jméno assembly ve kterém je potřeba typ a metodu nalézt.</param>
         /// <returns></returns>
-        /// <exception cref="ApplicationException"></exception>
+        /// <exception cref="Exception"></exception>
         private static T _GetSingletonInstanceFromModule<T>(string assemblyName)
         {
             using (Diagnostics.ITraceProvider.Provider.WriteScope(Diagnostics.TraceLevel.Info, nameof(ServerInstance), nameof(_GetSingletonInstanceFromModule), typeof(T).Name, assemblyName))
@@ -68,7 +68,7 @@ namespace DAVID
                         return requestedInstance;
                     }
                 }
-                throw new ApplicationException($"Cannot create instance of '{nameof(T)}'!");
+                throw new Exception($"Cannot create instance of '{nameof(T)}'!");
             }
         }
         #region AssemblyResolver
