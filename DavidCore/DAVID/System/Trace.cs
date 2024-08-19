@@ -66,11 +66,11 @@ namespace DAVID.Diagnostics
         /// <summary> Zapíše jeden řádek s <see cref="TraceLevel.Exception"/> </summary>
         /// <inheritdoc cref="Write(TraceLevel, string, string, string?, string[])"/>
         public static void WriteException(string type, string methode, string? keyword = null, Exception? exception = null)
-                    => Provider.Write(TraceLevel.Info, type, methode, keyword, exception?.ToString().ReplaceLineEndings(";") ?? "No detail");
+                    => Provider.Write(TraceLevel.Exception, type, methode, keyword, exception?.ToString().ReplaceLineEndings(";") ?? "No detail");
         /// <summary> Vytvoří <see cref="TraceScope"/> s <see cref="TraceLevel.Info"/> </summary>
         /// <inheritdoc cref="WriteScope(TraceLevel, string, string, string?, string[])"/>
-        public static ITraceScope WriteScopeInfo(string type, string methode, string? keyword = null, params string[] userInfo)
-                    => Provider.WriteScope(TraceLevel.Info, type, methode, keyword, userInfo);
+        public static ITraceScope WriteScopeInfo(TraceLevel level, string type, string methode, string? keyword = null, params string[] userInfo)
+                    => Provider.WriteScope(level, type, methode, keyword, userInfo);
         #endregion
 
     }

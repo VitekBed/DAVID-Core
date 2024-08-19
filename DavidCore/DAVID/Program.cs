@@ -41,15 +41,17 @@ namespace DAVID
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static void ThrowException()
         {
-            using ITraceScope trace = Diagnostics.ITraceProvider.Provider.WriteScope(Diagnostics.TraceLevel.Info, nameof(Program), nameof(ThrowException));
-            try
+            using (ITraceScope trace = Diagnostics.ITraceProvider.WriteScopeInfo(Diagnostics.TraceLevel.Info, nameof(Program), nameof(ThrowException)))
             {
-                Throw();
-            }
-            catch (Exception e)
-            {
-                ITraceProvider.WriteException(nameof(Program), nameof(ThrowException), null, e);
-                throw;
+                try
+                {
+                    Throw();
+                }
+                catch (Exception e)
+                {
+                    ITraceProvider.WriteException(nameof(Program), nameof(ThrowException), null, e);
+                    throw;
+                }
             }
         }
         [MethodImpl(MethodImplOptions.NoInlining)]
