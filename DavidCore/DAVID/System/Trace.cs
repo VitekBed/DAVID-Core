@@ -1,6 +1,4 @@
 using System.Diagnostics;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace DAVID.Diagnostics
 {
@@ -15,8 +13,7 @@ namespace DAVID.Diagnostics
         /// <param name="methode">Metoda, ze kzeré pochází zápis do trace</param>
         /// <param name="keyword">Klíčové slovo pro vyhledávání</param>
         /// <param name="userInfo">Další informace, které vývojář chce zapsat do trace</param>
-        [StackTraceHidden]
-        void Write(TraceLevel level, string type, string methode, string? keyword, params string[] userInfo);
+        void Write(TraceLevel level, string type, string methode, string? keyword = null, params string[] userInfo);
         /// <summary>
         /// Zapáše úvodní blok pro párový zápis do trace. Při zavolání <see cref="ITraceScope.Dispose()"/> zapíše
         /// koncovou značku. Obsah koncové značky lze ovlivnit zavoláním <see cref="ITraceScope.AddEndInfo(string[])"/>
@@ -27,8 +24,7 @@ namespace DAVID.Diagnostics
         /// <param name="keyword"></param>
         /// <param name="userInfo"></param>
         /// <returns></returns>
-        [StackTraceHidden]
-        ITraceScope WriteScope(TraceLevel level, string type, string methode, string? keyword, params string[] userInfo);
+        ITraceScope WriteScope(TraceLevel level, string type, string methode, string? keyword = null, params string[] userInfo);
         /// <summary>
         /// Vrací <see cref="ITraceProvider"/> nastavený při startu aplikace.
         /// </summary>
@@ -48,10 +44,10 @@ namespace DAVID.Diagnostics
             }
             catch (Exception e)
             {
-                throw new ApplicationException($"Trace provider '{type}' cannot be inicialized!", e);
+                throw new Exception($"Trace provider '{type}' cannot be inicialized!", e);
             }
             if (instance is ITraceProvider provider) _traceProvider = provider;
-            else throw new ApplicationException($"Trace provider '{type}' is not ITraceProvider!");
+            else throw new Exception($"Trace provider '{type}' is not ITraceProvider!");
         }
         private static ITraceProvider? _traceProvider;
     }
@@ -216,7 +212,7 @@ namespace DAVID.Diagnostics
                 TraceState.State => "S",
                 _ => "?",
             };
-            string row = String.Join(";", DateTime.Now, level, stateString, type, methode, keyword, userInfo, Environment.NewLine);
+            string row = String.Join(";", DateTime.Now, level, stateString, type, methode, keyword, String.Join(";", userInfo), Environment.NewLine);
             var encoded = System.Text.Encoding.UTF8.GetBytes(row);
             fileStream?.Write(encoded);
             fileStream?.Flush();
@@ -256,7 +252,7 @@ namespace DAVID.Diagnostics
         {
             if (_disposing) return; //zajištění aby se Invoke zavolal jen jednou
             _disposing = true;
-            _endAction?.Invoke();            
+            _endAction?.Invoke();
         }
     }
 }
