@@ -18,11 +18,8 @@ namespace DAVID.Diagnostics
         /// Zapáše úvodní blok pro párový zápis do trace. Při zavolání <see cref="ITraceScope.Dispose()"/> zapíše
         /// koncovou značku. Obsah koncové značky lze ovlivnit zavoláním <see cref="ITraceScope.AddEndInfo(string[])"/>
         /// </summary>
-        /// <param name="level"></param>
-        /// <param name="type"></param>
-        /// <param name="methode"></param>
-        /// <param name="keyword"></param>
-        /// <param name="userInfo"></param>
+        /// <param name="level">Zpravidla <see cref="TraceLevel.Info"/> </param>
+        /// <inheritdoc cref="Write"/>
         /// <returns></returns>
         ITraceScope WriteScope(TraceLevel level, string type, string methode, string? keyword = null, params string[] userInfo);
         /// <summary>
@@ -50,6 +47,32 @@ namespace DAVID.Diagnostics
             else throw new Exception($"Trace provider '{type}' is not ITraceProvider!");
         }
         private static ITraceProvider? _traceProvider;
+        #region public static
+        /// <inheritdoc cref="Write(TraceLevel, string, string, string?, string[])"/>>
+        public static void WriteInfo(TraceLevel level, string type, string methode, string? keyword = null, params string[] userInfo)
+                    => Provider.Write(level, type, methode, keyword, userInfo);
+        /// <summary> Zapíše jeden řádek s <see cref="TraceLevel.Info"/> </summary>
+        /// <inheritdoc cref="Write(TraceLevel, string, string, string?, string[])"/>
+        public static void WriteInfo(string type, string methode, string? keyword = null, params string[] userInfo)
+                    => Provider.Write(TraceLevel.Info, type, methode, keyword, userInfo);
+        /// <summary> Zapíše jeden řádek s <see cref="TraceLevel.Warning"/> </summary>
+        /// <inheritdoc cref="Write(TraceLevel, string, string, string?, string[])"/>
+        public static void WriteWarning(string type, string methode, string? keyword = null, params string[] userInfo)
+                    => Provider.Write(TraceLevel.Warning, type, methode, keyword, userInfo);
+        /// <summary> Zapíše jeden řádek s <see cref="TraceLevel.Error"/> </summary>
+        /// <inheritdoc cref="Write(TraceLevel, string, string, string?, string[])"/>
+        public static void WriteError(string type, string methode, string? keyword = null, params string[] userInfo)
+                    => Provider.Write(TraceLevel.Error, type, methode, keyword, userInfo);
+        /// <summary> Zapíše jeden řádek s <see cref="TraceLevel.Exception"/> </summary>
+        /// <inheritdoc cref="Write(TraceLevel, string, string, string?, string[])"/>
+        public static void WriteException(string type, string methode, string? keyword = null, Exception? exception = null)
+                    => Provider.Write(TraceLevel.Info, type, methode, keyword, exception?.ToString().ReplaceLineEndings(";") ?? "No detail");
+        /// <summary> Vytvoří <see cref="TraceScope"/> s <see cref="TraceLevel.Info"/> </summary>
+        /// <inheritdoc cref="WriteScope(TraceLevel, string, string, string?, string[])"/>
+        public static ITraceScope WriteScopeInfo(string type, string methode, string? keyword = null, params string[] userInfo)
+                    => Provider.WriteScope(TraceLevel.Info, type, methode, keyword, userInfo);
+        #endregion
+
     }
     /// <summary> Scope pro zápis trace, umožňuje zadat a načíst UserInfo, které bude zapsáno na konci scope. </summary>
     public interface ITraceScope : IDisposable

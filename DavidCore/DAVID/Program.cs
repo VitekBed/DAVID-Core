@@ -27,7 +27,7 @@ namespace DAVID
 
             trace.Dispose();    //ruční zápis koncové trace značky
             app.Run();
-            
+
 
         }
 
@@ -48,7 +48,7 @@ namespace DAVID
             }
             catch (Exception e)
             {
-                ITraceProvider.Provider.Write(Diagnostics.TraceLevel.Exception, nameof(Program), nameof(ThrowException), null, e.ToString().ReplaceLineEndings(";"));
+                ITraceProvider.WriteException(nameof(Program), nameof(ThrowException), null, e);
                 throw;
             }
         }
