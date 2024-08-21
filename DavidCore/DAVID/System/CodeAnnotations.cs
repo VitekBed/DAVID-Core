@@ -99,7 +99,11 @@ namespace DAVID.CodeAnnotations
                 return e.Types.Where(q => q != null)!;
             }
         }
-
+        internal static bool HasDbContextIdentificator(this Type type, string identificator)
+        {
+            DbContextIdentificatorAttribute? atribut = type.GetCustomAttribute<DbContextIdentificatorAttribute>(false);
+            return atribut is not null && atribut.FullName == identificator;
+        }
     }
 
     /// <summary>
@@ -144,6 +148,14 @@ namespace DAVID.CodeAnnotations
             _type = targetType;
         }
     }
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    public class DbContextIdentificatorAttribute : Attribute
+    {
+        public string FullName { get; init; }
 
-
+        public DbContextIdentificatorAttribute(string fullName)
+        {
+            FullName = fullName;
+        }
+    }
 }

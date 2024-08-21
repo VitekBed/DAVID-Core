@@ -8,6 +8,8 @@ DavidCore/DAVID/Trace/*
 CompleteProject/*
 DavidCore/DAVIDSocketServer/bin/*
 DavidCore/DAVIDSocketServer/obj/*
-.DS_Store
-DavidCore/.DS_Store
-DavidCore/DAVID/.DS_Store
+*.DS_Store
+DavidCore/AppBase/bin/*
+DavidCore/AppBase/obj/*
+DavidCore/FileBasedDatabase/bin/*
+DavidCore/FileBasedDatabase/obj/*

@@ -1,6 +1,7 @@
 
 using System.Runtime.CompilerServices;
 using DAVID.Diagnostics;
+using DAVID.Interface;
 
 namespace DAVID
 {
@@ -22,8 +23,8 @@ namespace DAVID
             var app = builder.Build();
 
             app.MapGet("/", () => "Hello World!");
-
             app.MapGet("/Exception", ThrowException);
+            app.MapGet("/VBE", WritePerson);
 
             trace.Dispose();    //ruční zápis koncové trace značky
             app.Run();
@@ -57,6 +58,13 @@ namespace DAVID
         [MethodImpl(MethodImplOptions.NoInlining)]
 
         private static void Throw() => throw new Exception("TESTexception");
-
+        private static void WritePerson()
+        {
+            using DvdDbContext context = ServerInstance._GetInstanceFromModule<DvdDbContext>("AppBase");
+            context.AddByFullName("AppBase","DAVID.App.Base.Person",null);
+            
+            //context.Add(new Person() { Name = "Vít", Surname = "Bednář", Birthdate = new DateOnly(1993, 10, 17) });
+            context.SaveChanges();
+        }
     }
 }

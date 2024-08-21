@@ -34,11 +34,12 @@ namespace DAVID
         }
         #endregion static
         public IWebSocketServer WebSocketServer {get; init;}
+        public IDatabase DatabaseProvider {get; init;}
         private ServerInstance()
         {
             _RegisterAssemblyResolvers();
             WebSocketServer = _GetSingletonInstanceFromModule<IWebSocketServer>(Current.Constants.WebSocketServerAssembly);
-
+            DatabaseProvider = _GetInstanceFromModule<IDatabase>("FileBasedDatabase");
         }
         /// <summary>
         /// Metoda pro získání instance singletonu požadovaného typu <typeparamref name="T"/> z požadované assembly. 
@@ -63,6 +64,25 @@ namespace DAVID
                     if (!interfaces.Contains(typeof(T))) continue;
                     // Implementuje požadovaný typ / interface
                     var factoryMethode = singletonType.GetFactoryMethode<T>();
+                    if (factoryMethode is not null && factoryMethode.Invoke(null, null) is T requestedInstance)
+                    {
+                        return requestedInstance;
+                    }
+                }
+                throw new Exception($"Cannot create instance of '{nameof(T)}'!");
+            }
+        }
+        internal static T _GetInstanceFromModule<T>(string assemblyName)
+        {
+            using (Diagnostics.ITraceProvider.Provider.WriteScope(Diagnostics.TraceLevel.Info, nameof(ServerInstance), nameof(_GetInstanceFromModule), typeof(T).Name, assemblyName))
+            {
+                //load požadované assembly
+                Assembly assembly = Assembly.Load(assemblyName);
+                //naleznu všechny singletony implemetující typ a v nich factory metody pro tvorbu požadovaného typu
+                IEnumerable<Type> types = assembly.GetLoadableTypes();
+                foreach (var type in types)
+                {
+                    var factoryMethode = type.GetFactoryMethode<T>();
                     if (factoryMethode is not null && factoryMethode.Invoke(null, null) is T requestedInstance)
                     {
                         return requestedInstance;
