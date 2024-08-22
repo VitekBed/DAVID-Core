@@ -5,7 +5,7 @@ WORKDIR /source
 COPY . .
 RUN dotnet restore -a amd64
 
-RUN dotnet publish -a amd64 --no-restore
+RUN dotnet publish -a amd64 --no-restore -o CompleteProject/net8.0/
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine
 EXPOSE 5001
