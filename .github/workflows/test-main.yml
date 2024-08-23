@@ -36,6 +36,5 @@ jobs:
       uses: docker/build-push-action@v6
       with:
         context: .
-        file: ./Dockerfile
         push: false
         tags: "david:${{github.sha}}"
