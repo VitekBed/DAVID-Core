@@ -1,11 +1,10 @@
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 WORKDIR /source
 
-# copy csproj and restore as distinct layers
 COPY . .
 RUN dotnet restore -a amd64
 
-RUN dotnet publish -a amd64 --no-restore -o CompleteProject/net8.0/
+RUN dotnet publish -a amd64 --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine
 EXPOSE 5001
@@ -20,6 +19,6 @@ RUN apk add --no-cache \
     icu-libs
 
 WORKDIR /app/CompleteProject/net8.0
-COPY --from=build /source/CompleteProject/net8.0/ .
+COPY --from=build /source/CompleteProject/net8.0/linux-musl-x64/publish .
 USER $APP_UID
 ENTRYPOINT ["dotnet","DAVID.dll"]
