@@ -27,3 +27,14 @@ jobs:
       with:
         name: DAVID-Core-${{ github.sha }}
         path: CompleteProject/net8.0/
+  test-docker:
+    name: Test docker image build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: false
+        tags: "david:${{github.sha}}"
